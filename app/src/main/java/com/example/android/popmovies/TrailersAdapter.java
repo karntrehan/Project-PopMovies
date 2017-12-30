@@ -17,39 +17,62 @@ import java.util.HashMap;
  * Created by toda on 2017/12/20.
  */
 
-public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.NumberViewHolder> {
+public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.TrailersAdapterViewHolder> {
 
     private static final String TAG = TrailersAdapter.class.getSimpleName();
 
-    final private ListItemClickListener mOnClickListener;
-    private static int viewHolderCount;
-    private int mNumberItems;
     private ArrayList<HashMap<String, String>> mTrailersData;
-    private HashMap<String, String> currentData;
+    HashMap<String, String> currentTrailersData;
 
-    // COMPLETED (1) Add an interface called ListItemClickListener
-    // COMPLETED (2) Within that interface, define a void method called onListItemClick that takes an int as a parameter
+    /*
+     * An on-click handler that we've defined to make it easy for an Activity to interface with
+     * our RecyclerView
+     */
+    final private TrailersAdapterOnClickHandler mClickHandler;
 
     /**
      * The interface that receives onClick messages.
      */
-    public interface ListItemClickListener {
-        void onListItemClick(String mv_url);
+    public interface TrailersAdapterOnClickHandler {
+        void onClick(String weatherForDay);
     }
 
-    // COMPLETED (4) Add a ListItemClickListener as a parameter to the constructor and store it in mOnClickListener
+    /**
+     * Creates a ForecastAdapter.
+     *
+     * @param clickHandler The on-click handler for this adapter. This single handler is called
+     *                     when an item is clicked.
+     */
+    public TrailersAdapter(TrailersAdapterOnClickHandler clickHandler) {
+        mClickHandler = clickHandler;
+    }
 
     /**
-     * Constructor for GreenAdapter that accepts a number of items to display and the specification
-     * for the ListItemClickListener.
-     *
-     * @param numberOfItems Number of items to display in list
-     * @param listener      Listener for list item clicks
+     * Cache of the children views for a forecast list item.
      */
-    public TrailersAdapter(int numberOfItems, ListItemClickListener listener) {
-        mNumberItems = numberOfItems;
-        mOnClickListener = listener;
-        viewHolderCount = 0;
+    public class TrailersAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        public final TextView mTrailerName;
+
+        public TrailersAdapterViewHolder(View view) {
+            super(view);
+            mTrailerName = (TextView) view.findViewById(R.id.recyclerview_trailer_name);
+            Log.v(TAG, "ForecastAdapterViewHolder is called");
+            view.setOnClickListener(this);
+        }
+
+        /**
+         * This gets called by the child views during a click.
+         *
+         * @param v The View that was clicked
+         */
+        @Override
+        public void onClick(View v) {
+            int adapterPosition = getAdapterPosition();
+            currentTrailersData = mTrailersData.get(adapterPosition);
+            Log.v(TAG, "currentTrailersData:" + currentTrailersData.toString());
+            Log.v(TAG, "onClick is called and pass the trailer name: "+ currentTrailersData.get("name"));
+            mClickHandler.onClick(currentTrailersData.get("name"));
+        }
     }
 
     /**
@@ -61,91 +84,51 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.Number
      *                  can use this viewType integer to provide a different layout. See
      *                  {@link android.support.v7.widget.RecyclerView.Adapter#getItemViewType(int)}
      *                  for more details.
-     * @return A new NumberViewHolder that holds the View for each list item
+     * @return A new ForecastAdapterViewHolder that holds the View for each list item
      */
     @Override
-    public NumberViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+    public TrailersAdapterViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         Context context = viewGroup.getContext();
         int layoutIdForListItem = R.layout.trailers_list_item;
         LayoutInflater inflater = LayoutInflater.from(context);
         boolean shouldAttachToParentImmediately = false;
 
         View view = inflater.inflate(layoutIdForListItem, viewGroup, shouldAttachToParentImmediately);
-
-        NumberViewHolder viewHolder = new NumberViewHolder(view);
-
-        viewHolderCount++;
-        Log.d(TAG, "onCreateViewHolder: number of ViewHolders created: "
-                + viewHolderCount);
-        return viewHolder;
+        Log.v(TAG, "ForecastAdapterViewHolder onCreateVIewHolder is called:");
+        return new TrailersAdapterViewHolder(view);
     }
 
     /**
      * OnBindViewHolder is called by the RecyclerView to display the data at the specified
-     * position. In this method, we update the contents of the ViewHolder to display the correct
-     * indices in the list for this particular position, using the "position" argument that is conveniently
+     * position. In this method, we update the contents of the ViewHolder to display the weather
+     * details for this particular position, using the "position" argument that is conveniently
      * passed into us.
      *
-     * @param holder   The ViewHolder which should be updated to represent the contents of the
-     *                 item at the given position in the data set.
-     * @param position The position of the item within the adapter's data set.
+     * @param forecastAdapterViewHolder The ViewHolder which should be updated to represent the
+     *                                  contents of the item at the given position in the data set.
+     * @param position                  The position of the item within the adapter's data set.
      */
     @Override
-    public void onBindViewHolder(NumberViewHolder holder, int position) {
+    public void onBindViewHolder(TrailersAdapterViewHolder forecastAdapterViewHolder, int position) {
+        currentTrailersData = mTrailersData.get(position);
         Log.v(TAG, "onBindViewHOlder is called");
-
-        currentData = mTrailersData.get(position);
-        String trailerName = currentData.get("trailer");
-        holder.listItemNumberView.setText(trailerName);
+        forecastAdapterViewHolder.mTrailerName.setText(currentTrailersData.get("name"));
     }
 
     /**
      * This method simply returns the number of items to display. It is used behind the scenes
      * to help layout our Views and for animations.
      *
-     * @return The number of items available
+     * @return The number of items available in our forecast
      */
     @Override
     public int getItemCount() {
-        return mNumberItems;
+        if (null == mTrailersData) return 0;
+        return mTrailersData.size();
     }
 
-    // COMPLETED (5) Implement OnClickListener in the NumberViewHolder class
-
-    /**
-     * Cache of the children views for a list item.
-     */
-    class NumberViewHolder extends RecyclerView.ViewHolder
-            implements View.OnClickListener {
-
-        // Will display the position in the list, ie 0 through getItemCount() - 1
-        TextView listItemNumberView;
-
-        public NumberViewHolder(View itemView) {
-            super(itemView);
-
-            listItemNumberView = (TextView) itemView.findViewById(R.id.recyclerview_trailer_name);
-            itemView.setOnClickListener(this);
-        }
-
-        // COMPLETED (6) Override onClick, passing the clicked item's position (getAdapterPosition()) to mOnClickListener via its onListItemClick method
-
-        /**
-         * Called whenever a user clicks on an item in the list.
-         *
-         * @param v The View that was clicked
-         */
-        @Override
-        public void onClick(View v) {
-            int clickedPosition = getAdapterPosition();
-            currentData = mTrailersData.get(clickedPosition);
-            String mv_url = currentData.get("trailersUrl");
-            mOnClickListener.onListItemClick(mv_url);
-        }
-    }
-
-    public void setTrailersData(ArrayList<HashMap<String, String>> mTrailerData) {
-        this.mTrailersData = mTrailerData;
+    public void setTrailersData(ArrayList<HashMap<String, String>> trailersData) {
+        mTrailersData = trailersData;
         notifyDataSetChanged();
     }
 }

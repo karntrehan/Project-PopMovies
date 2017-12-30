@@ -41,7 +41,6 @@ public class MainActivityFragment extends Fragment {
      * release date
      */
     private static ArrayList<HashMap<String, String>> moviesInfo;
-    private static ArrayList<HashMap<String, String>> movies;
 
     public MainActivityFragment() {
         //empty public constructor
@@ -86,7 +85,7 @@ public class MainActivityFragment extends Fragment {
     // AsyncTask<Params, Progress, Result>
     public static class FetchLoadingTask extends AsyncTask<String, Void, ArrayList<HashMap<String, String>>> {
 
-        private String API_KEY = "";
+        private String API_KEY = "13a909a18259e3653d6885c366f6b369";
 
         @Override
         protected void onPreExecute() {
@@ -147,7 +146,6 @@ public class MainActivityFragment extends Fragment {
 
                     // adding contact to movieInfo list
                     moviesInfo.add(movieInfo);
-
                 }
 //                Log.v(TAG, "MoviesInfo: "+ moviesInfo.toString());
                 return moviesInfo;
@@ -163,91 +161,8 @@ public class MainActivityFragment extends Fragment {
         protected void onPostExecute(ArrayList<HashMap<String, String>> hashMaps) {
             super.onPostExecute(hashMaps);
             if (hashMaps != null) {
-//                Log.v(TAG, "onPost is executed" + hashMaps.toString());
-                imagesAdapter.setGridData(hashMaps);
-            }
-        }
-    }
-
-    // AsyncTask<Params, Progress, Result>
-    public static class FetchLoadingTaskDetail extends AsyncTask<String, Void, ArrayList<HashMap<String, String>>> {
-
-        private String API_KEY = "";
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        //        Start loading images on background
-        @Override
-        protected ArrayList<HashMap<String, String>> doInBackground(String... params) {
-
-            if (params.length == 0) {
-                return null;
-            }
-
-            String sortOrder = params[0];
-            String mId = params[1];
-
-            // clear the data of ArrayList if it's not empty
-            if (moviesInfo != null) {
-                moviesInfo.clear();
-            }
-
-            URL requestUrl = NetworkUtils.buildUrl_detail(API_KEY, sortOrder, mId);
-
-            try {
-                //Store JsonResponse
-                String jsonResponse = NetworkUtils
-                        .getResponseFromHttpUrl(requestUrl);
-
-                Log.v(TAG, "jsonResponse: " + jsonResponse);
-
-                //Find items in "Result"
-                JSONObject getMovieInfo = new JSONObject(jsonResponse);
-//                Log.v(TAG, getMovieInfo.getString("page"));
-                JSONArray resultDetail = getMovieInfo.getJSONArray("results");
-
-                Log.v(TAG, "JSON Result: " + resultDetail.toString());
-
-                // looping through All Contacts
-                for (int i = 0; i < resultDetail.length(); i++) {
-
-                    JSONObject r = resultDetail.getJSONObject(i);
-
-                    String id = r.getString("id");
-                    String key = r.getString("key");
-                    String name = r.getString("name");
-                    String type = r.getString("type");
-                    String trailersUrl = "https://www.youtube.com/watch?v=" + key;
-
-                    HashMap<String, String> movieInfo = new HashMap<>();
-                    // adding each child node to HashMap key => value
-
-                    movieInfo.put("id", id);
-                    movieInfo.put("name", name);
-                    movieInfo.put("trailersUrl", trailersUrl);
-
-                    // adding contact to movieInfo list
-                    moviesInfo.add(movieInfo);
-                }
-                Log.v(TAG, "MoviesInfo: " + moviesInfo.toString());
-                return moviesInfo;
-            } catch (Exception e) {
-                Log.e(TAG, "Json parsing error: " + e.getMessage());
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        // Post the loading data
-        @Override
-        protected void onPostExecute(ArrayList<HashMap<String, String>> hashMaps) {
-            super.onPostExecute(hashMaps);
-            if (hashMaps != null) {
                 Log.v(TAG, "onPost is executed" + hashMaps.toString());
-                trailersAdapter.setTrailersData(hashMaps);
+                imagesAdapter.setGridData(hashMaps);
             }
         }
     }

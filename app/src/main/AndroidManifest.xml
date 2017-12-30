@@ -29,7 +29,7 @@
                 android:value=".MainActivity" />
         </activity>
         <activity
-            android:name=".TrailersActivity"
+            android:name=".TrailersDetail"
             android:parentActivityName=".DetailsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

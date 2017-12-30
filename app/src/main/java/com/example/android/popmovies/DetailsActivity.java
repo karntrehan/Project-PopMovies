@@ -67,7 +67,7 @@ public class DetailsActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 //Pass the data to new activity "TrailersActivity"
-                Intent intent = new Intent(DetailsActivity.this, TrailersActivity.class);
+                Intent intent = new Intent(DetailsActivity.this, TrailersDetail.class);
                 intent.putExtra(Intent.EXTRA_TEXT, currentMovieData.get("id"));
                 //Start details activity
                 startActivity(intent);

@@ -13,6 +13,10 @@
     <!--Used in layout-->
     <string name="button_trailers">Trailers</string>
 
+    <string name="error_message">
+        An error has occurred. Please try again by clicking REFRESH
+    </string>
+
     <!--Used to define sort order-->
     <string name="sort_order_upcoming">upcoming</string>
     <string name="sort_order_popular">popular</string>
